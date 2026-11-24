@@ -11,4 +11,6 @@ app.use("/api/auth", require("./routes/auth"));
 app.use("/api/problems", require("./routes/problems"));
 app.use("/api/submissions", require("./routes/submissions"));
 app.use("/api/hints", require("./routes/hints"));
+app.use("/api/doubts", require("./routes/doubts"));
+
 module.exports = app;
