@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
-
+import AskInstructor from "./AskInstructor";
 export default function HintLadder({ problemId, code }) {
   const [hints, setHints] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -76,6 +76,8 @@ export default function HintLadder({ problemId, code }) {
           {loading ? "Thinking…" : `Get hint ${used + 1}`}
         </button>
       )}
+
+      {used >= 3 && <AskInstructor problemId={problemId} code={code} />}
     </section>
   );
 }
