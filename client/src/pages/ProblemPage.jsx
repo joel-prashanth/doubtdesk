@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../api";
 import { runTests } from "../runTests";
+import HintLadder from "../components/HintLadder";
 
 export default function ProblemPage() {
   const { id } = useParams();
@@ -9,9 +10,33 @@ export default function ProblemPage() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [report, setReport] = useState(null);
+  const [submissions, setSubmissions] = useState([]);
 
-  function handleRun() {
-    setReport(runTests(code, problem.functionName, problem.testCases));
+  async function handleRun() {
+    const result = runTests(code, problem.functionName, problem.testCases);
+    setReport(result);
+    if (result.error) return;
+
+    try {
+      await api("/submissions", {
+        method: "POST",
+        body: {
+          problemId: problem._id,
+          code,
+          passedCount: result.results.filter((r) => r.passed).length,
+          totalCount: result.results.length,
+        },
+      });
+      loadSubmissions();
+    } catch {
+      // saving failed; the results on screen are still valid
+    }
+  }
+
+  function loadSubmissions() {
+    api(`/submissions/mine?problemId=${id}`)
+      .then(setSubmissions)
+      .catch(() => {});
   }
 
   useEffect(() => {
@@ -21,6 +46,10 @@ export default function ProblemPage() {
         setCode(p.starterCode);
       })
       .catch((err) => setError(err.message));
+  }, [id]);
+
+  useEffect(() => {
+    loadSubmissions();
   }, [id]);
 
   if (error)
@@ -47,6 +76,7 @@ export default function ProblemPage() {
           <p className="mt-6 max-w-prose whitespace-pre-wrap leading-relaxed">
             {problem.description}
           </p>
+          <HintLadder problemId={problem._id} code={code} />
         </section>
 
         <section>
@@ -104,6 +134,36 @@ export default function ProblemPage() {
               </>
             )}
           </div>
+          {submissions.length > 0 && (
+            <div className="mt-10">
+              <h2 className="text-lg font-semibold">Your attempts</h2>
+              <ul className="mt-3 border-t border-ink/20">
+                {submissions.map((s) => (
+                  <li
+                    key={s._id}
+                    className="flex items-baseline justify-between border-b border-ink/20 py-3"
+                  >
+                    <span>
+                      <span
+                        className={`font-semibold ${s.passedCount === s.totalCount ? "text-pass" : "text-ink"}`}
+                      >
+                        {s.passedCount} of {s.totalCount} passed
+                      </span>
+                      <span className="ml-3 text-sm text-ink/70">
+                        {new Date(s.createdAt).toLocaleString()}
+                      </span>
+                    </span>
+                    <button
+                      onClick={() => setCode(s.code)}
+                      className="text-sm font-medium text-cobalt underline underline-offset-4"
+                    >
+                      Load code
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </section>
       </div>
     </div>

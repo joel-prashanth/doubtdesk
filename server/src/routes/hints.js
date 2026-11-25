@@ -35,4 +35,15 @@ router.post("/", protect, async (req, res) => {
   }
 });
 
+router.get("/", protect, async (req, res) => {
+  const { problemId } = req.query;
+  if (!mongoose.isValidObjectId(problemId)) {
+    return res.status(400).json({ message: "Invalid problem id" });
+  }
+  const hints = await Hint.find({ user: req.user.id, problem: problemId })
+    .sort({ level: 1 })
+    .select("level text -_id");
+  res.json(hints);
+});
+
 module.exports = router;
