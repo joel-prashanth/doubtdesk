@@ -1,0 +1,30 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #F5F7F4;
+  --color-ink: #14213D;
+  --color-cobalt: #2F5BEA;
+  --color-highlighter: #FFD23F;
+  --color-pass: #1F8A5B;
+  --color-fail: #D9483B;
+
+  --font-sans: "Schibsted Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-cobalt);
+  outline-offset: 2px;
+}
+input,
+button {
+  font: inherit;
+}
